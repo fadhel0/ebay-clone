@@ -4,7 +4,7 @@ const Footer = () => {
   return (
     <>
       <div id="Footer" className="border-t mt-20 px-2">
-        <div className="flex items-baseline justify-between w-full mx-auto max-w-full py-10">
+        <div className="flex items-baseline justify-between w-full mx-auto max-w-full py-10 gap-10 ">
           <ul className="text-gray-700">
             <li className="font-bold text-lg">Buy</li>
             <li className="mt-2 py-1 text-xs hover:underline cursor-pointer">
