@@ -1,9 +1,25 @@
 'use client';
 
 import SimilarProducts from '@/app/components/SimilarProducts';
+import { useCart } from '@/app/context/cart';
 import MainLayout from '@/app/layouts/MainLayout';
+import { toast } from 'react-toastify';
 
-const page = ({ params }: any) => {
+type Product = {
+  id: number;
+  title: string;
+  description: string;
+  url: string;
+  price: number;
+};
+
+type PageProps = {
+  params: Product; // Replace with the actual type of 'params'
+};
+
+const Product = ({ params }: PageProps) => {
+  const cart = useCart();
+
   const product = {
     id: 1,
     title: 'Brown lether',
@@ -19,7 +35,11 @@ const page = ({ params }: any) => {
         <div className="max-w-[1200px] mx-auto">
           <div className="flex px-4 py-10">
             {product?.url ? (
-              <img className="w-2/5 rounded-lg" src={product?.url + '/200'} />
+              <img
+                className="w-2/5 rounded-lg"
+                src={`${product?.url}/200`}
+                alt="image"
+              />
             ) : (
               <div className="w-2/5"></div>
             )}
@@ -46,8 +66,26 @@ const page = ({ params }: any) => {
                       </div>
                     ) : null}
                   </div>
-                  <button className="text-white bg-[#3498c9] py-2 px-20 rounded-full cursor-pointer">
-                    Add To Cart
+                  <button
+                    onClick={() => {
+                      if (cart.isItemAdded) {
+                        cart.removeFromCart(product);
+                        toast.info('Removed from cart', { autoClose: 3000 });
+                      } else {
+                        cart.addToCart(product);
+                        toast.success('Added to cart', { autoClose: 3000 });
+                      }
+                    }}
+                    className={`
+                  text-white bg-[#3498c9] py-2 px-20 rounded-full cursor-pointer
+                  ${
+                    cart.isItemAdded
+                      ? 'bg-[#e9a321] hover:bg-[#bf851a]'
+                      : 'bg-[#3498C9] hover:bg-[#0054A0]'
+                  }
+                  `}
+                  >
+                    {cart.isItemAdded ? 'Remove From Cart' : 'Add To Cart'}
                   </button>
                 </div>
               </div>
@@ -65,4 +103,4 @@ const page = ({ params }: any) => {
   );
 };
 
-export default page;
+export default Product;

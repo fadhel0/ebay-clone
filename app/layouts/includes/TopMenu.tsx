@@ -1,21 +1,27 @@
-'use client';
-
 import Link from 'next/link';
 import { BsChevronDown } from 'react-icons/bs';
 import { AiOutlineShoppingCart } from 'react-icons/ai';
-import { useUser } from '@/app/context/user';
-import { useState } from 'react';
+import { useUser } from '../../context/user';
+import { useEffect, useState } from 'react';
+import { useCart } from '../../context/cart';
+import { useRouter } from 'next/navigation';
+import ClientOnly from '../../components/ClientOnly';
 
-const TopMenu = () => {
+export default function TopMenu() {
+  const router = useRouter();
   const user = useUser();
-
+  const cart = useCart();
   const [isMenu, setIsMenu] = useState(false);
+
+  useEffect(() => {
+    // You can add logic here based on the cart count if needed
+  }, [cart]);
 
   const isLoggedIn = () => {
     if (user && user?.id) {
       return (
         <button
-          onClick={() => (!isMenu ? setIsMenu(true) : setIsMenu(false))}
+          onClick={() => setIsMenu(!isMenu)}
           className="flex items-center gap-2 hover:underline cursor-pointer"
         >
           <div>Hi, {user.name}</div>
@@ -34,40 +40,48 @@ const TopMenu = () => {
       </Link>
     );
   };
+
   return (
     <>
       <div id="TopMenu" className="border-b">
-        <div className="flex items-center justify-between w-full mx-auto max-w-6xl">
+        <div className="flex items-center justify-between w-full mx-auto max-w-[1200px]">
           <ul
             id="TopMenuLeft"
-            className="flex items-center text-xs text-[#333333] px-2 h-8"
+            className="flex items-center text-[11px] text-[#333333] px-2 h-8"
           >
             <li className="relative px-3">
               {isLoggedIn()}
 
               <div
                 id="AuthDropdown"
-                className={` 
-                absolute bg-white w-52 text-[#333333] z-40 top-5 left-0 border shadow-lg
-                ${isMenu ? 'visible' : 'hidden'}
+                className={`
+                  absolute bg-white w-[200px] text-[#333333] z-40 top-[20px] left-0 border shadow-lg
+                  ${isMenu ? 'visible' : 'hidden'}
                 `}
               >
-                <div className="flex items-center justify-start gap-1 p-3">
-                  <img src={user?.picture || undefined} alt="img" width={50} />
-                  <div className="font-bold text-sm">{user?.name}</div>
+                <div>
+                  <div className="flex items-center justify-start gap-1 p-3">
+                    <img
+                      width={50}
+                      src={user?.picture || undefined}
+                      alt="User"
+                    />
+                    <div className="font-bold text-[13px]">{user?.name}</div>
+                  </div>
                 </div>
 
                 <div className="border-b" />
+
                 <ul className="bg-white">
-                  <li className="text-xs py-2 px-4 w-full hover:underline text-blue-500 hover:text-blue-600 cursor-pointer">
-                    <Link href="/orders">My Orders</Link>
+                  <li className="text-[11px] py-2 px-4 w-full hover:underline text-blue-500 hover:text-blue-600 cursor-pointer">
+                    <Link href="/orders">My orders</Link>
                   </li>
                   <li
                     onClick={() => {
                       user.signOut();
                       setIsMenu(false);
                     }}
-                    className="text-xs py-2 px-4 w-full hover:underline text-blue-500 hover:text-blue-600 cursor-pointer"
+                    className="text-[11px] py-2 px-4 w-full hover:underline text-blue-500 hover:text-blue-600 cursor-pointer"
                   >
                     Sign out
                   </li>
@@ -81,28 +95,33 @@ const TopMenu = () => {
           </ul>
 
           <ul
-            id="ToMenuRight"
-            className="flex items-center text-xs text-[#333333] px-2 h-8"
+            id="TopMenuRight"
+            className="flex items-center text-[11px] text-[#333333] px-2 h-8"
           >
-            <li className="flex items-center gap-2 px-3 hover:underline cursor-pointer">
-              <img src="/images/uk.png" alt="uk-flag" width={32} />
+            <li
+              onClick={() => router.push('/address')}
+              className="flex items-center gap-2 px-3 hover:underline cursor-pointer"
+            >
+              <img width={32} src="/images/uk.png" alt="UK Flag" />
               Ship to
             </li>
-            <li className="px-3 hover:underline cursor-pointer">
-              <div className="relative">
-                <AiOutlineShoppingCart size={22} />
-                <div className="absolute text-xs -top-[3px] -right-[5px] bg-red-500 w-4 h-3 rounded-full">
-                  <div className="flex items-center justify-center -mt-[1px] text-white">
-                    3
-                  </div>
+            <ClientOnly>
+              <li className="px-3 hover:underline cursor-pointer">
+                <div onClick={() => router.push('/cart')} className="relative">
+                  <AiOutlineShoppingCart size={22} />
+                  {cart.cartCount() > 0 && (
+                    <div className="absolute text-[10px] -top-[2px] -right-[5px] bg-red-500 w-[14px] h-[14px] rounded-full text-white">
+                      <div className=" flex items-center justify-center -mt-[1px]">
+                        {cart.cartCount()}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
-            </li>
+              </li>
+            </ClientOnly>
           </ul>
         </div>
       </div>
     </>
   );
-};
-
-export default TopMenu;
+}

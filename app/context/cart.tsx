@@ -1,17 +1,20 @@
-import { useRouter } from 'next/router';
+'use client';
+
+import { useRouter } from 'next/navigation';
+import { type } from 'os';
 import { createContext, useState, useContext, ReactNode } from 'react';
 
 // Define the types for your context
-interface CartContextType {
+type CartContextType = {
   isItemAdded: boolean;
-  getCart: () => any[]; // You can specify a more specific type if needed
-  addToCart: (product: any) => void; // You can specify a more specific type for product
-  removeFromCart: (product: any) => void; // You can specify a more specific type for product
-  isItemAddedToCart: (product: any) => void; // You can specify a more specific type for product
+  getCart: () => any[]; // can specify a more specific type if needed
+  addToCart: (product: any) => void; // can specify a more specific type for product
+  removeFromCart: (product: any) => void;
+  isItemAddedToCart: (product: any) => void;
   cartCount: () => number;
   cartTotal: () => number;
   clearCart: () => void;
-}
+};
 
 // Define the type for your Provider props
 interface ProviderProps {
@@ -51,7 +54,7 @@ const Provider = ({ children }: ProviderProps) => {
       cart.push(product);
       localStorage.setItem('cart', JSON.stringify(cart));
       isItemAddedToCart(product);
-      router.replace(router.asPath);
+      router.refresh();
     }
   };
 
@@ -63,7 +66,7 @@ const Provider = ({ children }: ProviderProps) => {
         cart = cart.filter((item) => item.id !== product.id);
         localStorage.setItem('cart', JSON.stringify(cart));
         isItemAddedToCart(product);
-        router.replace(router.asPath); // Use replace instead of refresh
+        router.refresh(); // Use replace instead of refresh
       }
     }
   };
@@ -123,7 +126,7 @@ const Provider = ({ children }: ProviderProps) => {
 
   const clearCart = (): void => {
     localStorage.removeItem('cart');
-    router.replace(router.asPath); // Use replace instead of refresh
+    router.refresh(); // Use replace instead of refresh
   };
 
   const exposed: CartContextType = {
