@@ -1,5 +1,3 @@
-'use client';
-
 const SubMenu = () => {
   const menuItems = [
     { id: 1, name: 'Home' },
@@ -18,13 +16,16 @@ const SubMenu = () => {
   return (
     <>
       <div id="SubMenu" className="border-b">
-        <div className="flex items-center justify-between w-full mx-auto max-w-6xl">
+        <div className="flex flex-wrap items-center justify-between w-full mx-auto max-w-6xl">
           <ul
             id="TopMenuLeft"
-            className="flex items-center text-xs text-[#333333] px-2 h-8"
+            className="flex flex-wrap items-center text-xs text-[#333333] px-2 h-8"
           >
             {menuItems.map((item) => (
-              <li key={item.id} className="px-3 hover:underline cursor-pointer">
+              <li
+                key={item.id}
+                className="px-3 hover:underline cursor-pointer whitespace-nowrap"
+              >
                 {item.name}
               </li>
             ))}
