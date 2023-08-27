@@ -1,225 +1,240 @@
-// 'use client';
+'use client';
 
-// // https://nextjs.org/docs/messages/react-hydration-error#solution-1-using-useeffect-to-run-on-the-client-only
+import MainLayout from '../layouts/MainLayout';
+import TextInput from '../components/TextInput';
+import { useEffect, useState } from 'react';
+import { useUser } from '../context/user';
+import UseIsLoading from '../hooks/useIsLoading';
+import UseCreateAddress from '../hooks/useCreateAddress';
+import UseUserAddress from '../hooks/useUserAddress';
+import { AiOutlineLoading3Quarters } from 'react-icons/ai';
+import { useRouter } from 'next/navigation';
+import { toast } from 'react-toastify';
+import ClientOnly from '../components/ClientOnly';
 
-// import MainLayout from '../layouts/MainLayout';
-// import TextInput from '../components/TextInput';
-// import { useEffect, useState } from 'react';
-// import { useUser } from '@/app/context/user';
-// import useIsLoading from '@/app/hooks/useIsLoading';
-// import useCreateAddress from '../hooks/useCreateAddress';
-// import useUserAddress from '../hooks/useUserAddress';
-// import { AiOutlineLoading3Quarters } from 'react-icons/ai';
-// import { useRouter } from 'next/navigation';
-// import { toast } from 'react-toastify';
-// import ClientOnly from '../components/ClientOnly';
+type Address = {
+  id: number | null;
+  name: string;
+  address: string;
+  zipcode: string;
+  city: string;
+  country: string;
+};
 
-// export default function Home() {
-//   const router = useRouter();
-//   const { user } = useUser();
+export default function Home() {
+  const router = useRouter();
+  const { user } = useUser();
 
-//   const [addressId, setAddressId] = useState(null);
-//   const [name, setName] = useState('');
-//   const [address, setAddress] = useState('');
-//   const [zipcode, setZipcode] = useState('');
-//   const [city, setCity] = useState('');
-//   const [country, setCountry] = useState('');
-//   const [isUpdatingAddress, setIsUpdatingAddress] = useState(false);
-//   const [error, setError] = useState({});
+  const [addressId, setAddressId] = useState<number | null>(null);
+  const [name, setName] = useState<string>('');
+  const [address, setAddress] = useState<string>('');
+  const [zipcode, setZipcode] = useState<string>('');
+  const [city, setCity] = useState<string>('');
+  const [country, setCountry] = useState<string>('');
+  const [isUpdatingAddress, setIsUpdatingAddress] = useState<boolean>(false);
+  const [error, setError] = useState<{ type: string; message: string }>({
+    type: '',
+    message: '',
+  });
 
-//   const showError = (type: any) => {
-//     if (Object.entries(error).length > 0 && error?.type == type) {
-//       return error.message;
-//     }
-//     return '';
-//   };
+  const showError = (type: string) => {
+    if (Object.entries(error).length > 0 && error?.type == type) {
+      return error.message;
+    }
+    return '';
+  };
 
-//   const getAdddress = async () => {
-//     if (user?.id == null || user?.id == undefined) {
-//       useIsLoading(false);
-//       return;
-//     }
+  const getAdddress = async () => {
+    if (user?.id == null || user?.id == undefined) {
+      UseIsLoading(false);
+      return;
+    }
 
-//     const response = await useUserAddress();
-//     if (response) {
-//       setTheCurrentAddres(response);
-//       useIsLoading(false);
-//       return;
-//     }
-//     useIsLoading(false);
-//   };
+    const response: Address = {
+      id: null,
+      name: '',
+      address: '',
+      zipcode: '',
+      city: '',
+      country: '',
+    };
 
-//   useEffect(() => {
-//     useIsLoading(true);
-//     getAdddress();
-//   }, [user]);
+    const fetchedResponse = await UseUserAddress();
 
-//   const setTheCurrentAddres = (result) => {
-//     setAddressId(result.id);
-//     setName(result.name);
-//     setAddress(result.address);
-//     setZipcode(result.zipcode);
-//     setCity(result.city);
-//     setCountry(result.country);
-//   };
+    if (fetchedResponse) {
+      Object.assign(response, fetchedResponse); // Merge fetched data into the response object
+      setTheCurrentAddress(response);
+    }
 
-//   const validate = () => {
-//     setError(null);
-//     setError({});
-//     let isError = false;
+    UseIsLoading(false);
+  };
 
-//     if (!name) {
-//       setError({ type: 'name', message: 'A name is required' });
-//       isError = true;
-//     } else if (!address) {
-//       setError({ type: 'address', message: 'An address is required' });
-//       isError = true;
-//     } else if (!zipcode) {
-//       setError({ type: 'zipcode', message: 'A zipcode is required' });
-//       isError = true;
-//     } else if (!city) {
-//       setError({ type: 'city', message: 'A city is required' });
-//       isError = true;
-//     } else if (!country) {
-//       setError({ type: 'country', message: 'A country is required' });
-//       isError = true;
-//     }
-//     return isError;
-//   };
+  useEffect(() => {
+    UseIsLoading(true);
+    getAdddress();
+  }, [user]);
 
-//   const submit = async (event) => {
-//     event.preventDefault();
-//     let isError = validate();
+  const setTheCurrentAddress = (result: Address) => {
+    setAddressId(result.id);
+    setName(result.name);
+    setAddress(result.address);
+    setZipcode(result.zipcode);
+    setCity(result.city);
+    setCountry(result.country);
+  };
 
-//     if (isError) {
-//       toast.error(error.message, { autoClose: 3000 });
-//       return;
-//     }
+  const validate = () => {
+    setError({ type: '', message: '' });
+    let isError = false;
 
-//     try {
-//       setIsUpdatingAddress(true);
+    if (!name) {
+      setError({ type: 'name', message: 'A name is required' });
+      isError = true;
+    } else if (!address) {
+      setError({ type: 'address', message: 'An address is required' });
+      isError = true;
+    } else if (!zipcode) {
+      setError({ type: 'zipcode', message: 'A zipcode is required' });
+      isError = true;
+    } else if (!city) {
+      setError({ type: 'city', message: 'A city is required' });
+      isError = true;
+    } else if (!country) {
+      setError({ type: 'country', message: 'A country is required' });
+      isError = true;
+    }
+    return isError;
+  };
 
-//       const response = await useCreateAddress({
-//         addressId,
-//         name,
-//         address,
-//         zipcode,
-//         city,
-//         country,
-//       });
+  const submit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    let isError = validate();
 
-//       setTheCurrentAddres(response);
-//       setIsUpdatingAddress(false);
+    if (isError) {
+      toast.error(error.message, { autoClose: 3000 });
+      return;
+    }
 
-//       toast.success('Address updated!', { autoClose: 3000 });
+    try {
+      setIsUpdatingAddress(true);
 
-//       router.push('/checkout');
-//     } catch (error) {
-//       setIsUpdatingAddress(false);
-//       console.log(error);
-//       alert(error);
-//     }
-//   };
+      const response: Address = await UseCreateAddress({
+        addressId,
+        name,
+        address,
+        zipcode,
+        city,
+        country,
+      });
 
-//   return (
-//     <>
-//       <MainLayout>
-//         <div id="AddressPage" className="mt-4 max-w-[600px] mx-auto px-2">
-//           <div className="mx-auto bg-white rounded-lg p-3">
-//             <div className="text-xl text-bold mb-2">Address Details</div>
+      setTheCurrentAddress(response);
+      setIsUpdatingAddress(false);
 
-//             <form onSubmit={submit}>
-//               <div className="mb-4">
-//                 <ClientOnly>
-//                   <TextInput
-//                     className="w-full"
-//                     string={name}
-//                     placeholder="Name"
-//                     onUpdate={setName}
-//                     error={showError('name')}
-//                   />
-//                 </ClientOnly>
-//               </div>
+      toast.success('Address updated!', { autoClose: 3000 });
 
-//               <div className="mb-4">
-//                 <ClientOnly>
-//                   <TextInput
-//                     className="w-full"
-//                     string={address}
-//                     placeholder="Address"
-//                     onUpdate={setAddress}
-//                     error={showError('address')}
-//                   />
-//                 </ClientOnly>
-//               </div>
+      router.push('/checkout');
+    } catch (error) {
+      setIsUpdatingAddress(false);
+      console.log(error);
+      alert(error);
+    }
+  };
 
-//               <div className="mb-4">
-//                 <ClientOnly>
-//                   <TextInput
-//                     className="w-full mt-2"
-//                     string={zipcode}
-//                     placeholder="Zip Code"
-//                     onUpdate={setZipcode}
-//                     error={showError('zipcode')}
-//                   />
-//                 </ClientOnly>
-//               </div>
+  return (
+    <>
+      <MainLayout>
+        <div id="AddressPage" className="mt-4 max-w-[600px] mx-auto px-2">
+          <div className="mx-auto bg-white rounded-lg p-3">
+            <div className="text-xl font-bold mb-2">Address Details</div>
 
-//               <div className="mb-4">
-//                 <ClientOnly>
-//                   <TextInput
-//                     className="w-full mt-2"
-//                     string={city}
-//                     placeholder="City"
-//                     onUpdate={setCity}
-//                     error={showError('city')}
-//                   />
-//                 </ClientOnly>
-//               </div>
+            <form onSubmit={submit}>
+              <div className="mb-4">
+                <ClientOnly>
+                  <TextInput
+                    className="w-full"
+                    string={name}
+                    placeholder="Name"
+                    onUpdate={setName}
+                    error={showError('name')}
+                  />
+                </ClientOnly>
+              </div>
 
-//               <div>
-//                 <ClientOnly>
-//                   <TextInput
-//                     className="w-full mt-2"
-//                     string={country}
-//                     placeholder="Country"
-//                     onUpdate={setCountry}
-//                     error={showError('country')}
-//                   />
-//                 </ClientOnly>
-//               </div>
+              <div className="mb-4">
+                <ClientOnly>
+                  <TextInput
+                    className="w-full"
+                    string={address}
+                    placeholder="Address"
+                    onUpdate={setAddress}
+                    error={showError('address')}
+                  />
+                </ClientOnly>
+              </div>
 
-//               <button
-//                 type="submit"
-//                 disabled={isUpdatingAddress}
-//                 className={`
-//                                 mt-6
-//                                 w-full
-//                                 text-white
-//                                 text-lg
-//                                 font-semibold
-//                                 p-3
-//                                 rounded
-//                                 ${
-//                                   isUpdatingAddress
-//                                     ? 'bg-blue-800'
-//                                     : 'bg-blue-600'
-//                                 }
-//                             `}
-//               >
-//                 {!isUpdatingAddress ? (
-//                   <div>Update Address</div>
-//                 ) : (
-//                   <div className="flex items-center justify-center gap-2">
-//                     <AiOutlineLoading3Quarters className="animate-spin" />
-//                     Please wait...
-//                   </div>
-//                 )}
-//               </button>
-//             </form>
-//           </div>
-//         </div>
-//       </MainLayout>
-//     </>
-//   );
-// }
+              <div className="mb-4">
+                <ClientOnly>
+                  <TextInput
+                    className="w-full mt-2"
+                    string={zipcode}
+                    placeholder="Zip Code"
+                    onUpdate={setZipcode}
+                    error={showError('zipcode')}
+                  />
+                </ClientOnly>
+              </div>
+
+              <div className="mb-4">
+                <ClientOnly>
+                  <TextInput
+                    className="w-full mt-2"
+                    string={city}
+                    placeholder="City"
+                    onUpdate={setCity}
+                    error={showError('city')}
+                  />
+                </ClientOnly>
+              </div>
+
+              <div>
+                <ClientOnly>
+                  <TextInput
+                    className="w-full mt-2"
+                    string={country}
+                    placeholder="Country"
+                    onUpdate={setCountry}
+                    error={showError('country')}
+                  />
+                </ClientOnly>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isUpdatingAddress}
+                className={`
+                  mt-6
+                  w-full 
+                  text-white 
+                  text-lg 
+                  font-semibold 
+                  p-3 
+                  rounded
+                  ${isUpdatingAddress ? 'bg-blue-800' : 'bg-blue-600'}
+                `}
+              >
+                {!isUpdatingAddress ? (
+                  <div>Update Address</div>
+                ) : (
+                  <div className="flex items-center justify-center gap-2">
+                    <AiOutlineLoading3Quarters className="animate-spin" />
+                    Please wait...
+                  </div>
+                )}
+              </button>
+            </form>
+          </div>
+        </div>
+      </MainLayout>
+    </>
+  );
+}
