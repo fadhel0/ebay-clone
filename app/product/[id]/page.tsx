@@ -1,7 +1,9 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import SimilarProducts from '@/app/components/SimilarProducts';
 import { useCart } from '@/app/context/cart';
+import UseIsLoading from '@/app/hooks/useIsLoading';
 import MainLayout from '@/app/layouts/MainLayout';
 import { toast } from 'react-toastify';
 
@@ -20,14 +22,37 @@ type PageProps = {
 const Product = ({ params }: PageProps) => {
   const cart = useCart();
 
-  const product = {
-    id: 1,
-    title: 'Brown lether',
-    description:
-      'Lorem ipsum dolor sit amet consectetur adipisicing elit. Minima, iste itaque cupiditate nulla corrupti sed quisquam odit dolorum asperiores esse eos quidem error fuga nesciunt? Accusantium, culpa voluptas. Praesentium, ducimus.',
-    url: 'https://picsum.photos/id/7',
-    price: 2500,
+  const [product, setProduct] = useState<Product>({
+    // Define the type here
+    id: 0,
+    title: '',
+    description: '',
+    url: '',
+    price: 0,
+  });
+
+  // const [product, setProduct] = useState({});
+
+  const getProduct = async () => {
+    UseIsLoading(true);
+    setProduct({
+      id: 0,
+      title: '',
+      description: '',
+      url: '',
+      price: 0,
+    });
+
+    const response = await fetch(`/api/product/${params.id}`);
+    const prod = await response.json();
+    setProduct(prod);
+    cart.isItemAddedToCart(prod);
+    UseIsLoading(false);
   };
+
+  useEffect(() => {
+    getProduct();
+  }, []);
 
   return (
     <>

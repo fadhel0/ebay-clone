@@ -6,28 +6,51 @@ import MainLayout from '../layouts/MainLayout';
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import moment from 'moment';
+import UseIsLoading from '../hooks/useIsLoading';
+import { useUser } from '../context/user';
 
-export default function TopMenu() {
-  //   const [orders, setOrders] = useState([]);
-  const orders = [
-    {
-      id: 1,
-      stripe_id: '122212121',
-      name: 'test',
-      address: 'mksdlgwls,lhf',
-      zipcode: 8722,
-      city: 'united kingdom',
-      country: 'sousse',
-      total: 98222,
-      orderItem: [
-        {
-          id: 1,
-          title: 'Brown lether',
-          url: 'https://picsum.photos/id/7',
-        },
-      ],
-    },
-  ];
+export default function Orders() {
+  const { user } = useUser();
+  const [orders, setOrders] = useState([]);
+
+  // Define the Order type if not already defined
+  type Order = {
+    id: number | null; // Adjust the data type accordingly
+    stripe_id: string; // Add other properties as needed
+    name: string;
+    address: string;
+    zipcode: string;
+    city: string;
+    country: string;
+    total: number;
+    created_at: string; // Assuming it's a string; adjust as needed
+    orderItem: Array<{
+      id: number | null; // Assuming this is the id for orderItem
+      product: {
+        id: number | null; // Adjust the data type accordingly
+        title: string;
+        url: string;
+      };
+    }>;
+  };
+
+  const getOrders = async () => {
+    try {
+      if (!user && !user?.id) return;
+      const response = await fetch('/api/orders');
+      const result = await response.json();
+      setOrders(result);
+      UseIsLoading(false);
+    } catch (error) {
+      toast.error('Something went wrong?', { autoClose: 3000 });
+      UseIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    UseIsLoading(true);
+    getOrders();
+  }, [user]);
 
   return (
     <>
@@ -47,7 +70,7 @@ export default function TopMenu() {
               </div>
             ) : null}
 
-            {orders.map((order) => (
+            {orders.map((order: Order) => (
               <div key={order?.id} className="text-sm pl-12">
                 <div className="border-b py-1">
                   <div className="pt-2">
@@ -66,7 +89,7 @@ export default function TopMenu() {
                     {order?.total / 100}
                   </div>
 
-                  {/* <div className="pt-2">
+                  <div className="pt-2">
                     <span className="font-bold mr-2">Order Created:</span>
                     {moment(order?.created_at).calendar()}
                   </div>
@@ -81,7 +104,7 @@ export default function TopMenu() {
                       <div key={item.id} className="flex items-center">
                         <Link
                           className="py-1 hover:underline text-blue-500 font-bold"
-                          href={`/product/${item.product_id}`}
+                          href={`/product/${item.product.id}`}
                         >
                           <img
                             className="rounded"
@@ -92,7 +115,7 @@ export default function TopMenu() {
                         </Link>
                       </div>
                     ))}
-                  </div> */}
+                  </div>
                 </div>
               </div>
             ))}
