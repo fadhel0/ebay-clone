@@ -1,6 +1,20 @@
 'use client';
 
+import { useCart } from '../context/cart';
+import { toast } from 'react-toastify';
+
 const CartItem = ({ product }: any) => {
+  const cart = useCart();
+
+  const removeItemFromCart = () => {
+    let res = confirm(
+      `Are you sure you want to remove this? "${product.title}"`
+    );
+    if (res) {
+      cart.removeFromCart(product);
+      toast.info('Removed from cart', { autoClose: 3000 });
+    }
+  };
   return (
     <>
       <div className="relative flex justify-start my-2 border w-full p-6">
@@ -24,7 +38,7 @@ const CartItem = ({ product }: any) => {
 
           <div className="absolute right-0 bottom-0 p-4 text-sm">
             <button
-              //   onClick={() => removeItemFromCart()}
+              onClick={() => removeItemFromCart()}
               className="underline text-blue-500"
             >
               Remove
