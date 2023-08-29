@@ -1,27 +1,39 @@
 'use client';
-
+import { useEffect, useState } from 'react';
 import Product from './Product';
 import { BiLoader } from 'react-icons/bi';
 
+type Product = {
+  id: number;
+  title: string;
+  description: string;
+  url: string;
+  price: number;
+};
+
 const SimilarProducts = () => {
-  const products = [
-    {
-      id: 1,
-      title: 'Brown lether',
-      description:
-        'Lorem ipsum dolor sit amet consectetur adipisicing elit. Minima, iste itaque cupiditate nulla corrupti sed quisquam odit dolorum asperiores esse eos quidem error fuga nesciunt? Accusantium, culpa voluptas. Praesentium, ducimus.',
-      url: 'https://picsum.photos/id/7',
-      price: 2500,
-    },
-    {
-      id: 2,
-      title: 'Blue lether',
-      description:
-        'Lorem ipsum dolor sit amet consectetur adipisicing elit. Minima, iste itaque cupiditate nulla corrupti sed quisquam odit dolorum asperiores esse eos quidem error fuga nesciunt? Accusantium, culpa voluptas. Praesentium, ducimus.',
-      url: 'https://picsum.photos/id/20',
-      price: 3000,
-    },
-  ];
+  const [products, setProducts] = useState<Product[]>([]); // Specify the type here
+
+  const getRandomProducts = async () => {
+    try {
+      const response = await fetch('/api/products/get-random');
+      const result = await response.json();
+
+      if (result) {
+        setProducts(result);
+        return;
+      }
+
+      setProducts([]);
+    } catch (error) {
+      console.log(error);
+      alert(error);
+    }
+  };
+
+  useEffect(() => {
+    getRandomProducts();
+  }, []);
 
   return (
     <>
@@ -41,7 +53,7 @@ const SimilarProducts = () => {
               <div className="flex items-center justify-center">
                 <div className="flex items-center justify-center gap-4 font-semibold">
                   <BiLoader size={30} className="text-blue-400 animate-spin" />
-                  Loading Products
+                  Loading Products ...
                 </div>
               </div>
             )}

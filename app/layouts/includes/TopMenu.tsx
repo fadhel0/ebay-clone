@@ -102,7 +102,7 @@ export default function TopMenu() {
               onClick={() => router.push('/address')}
               className="flex items-center gap-2 px-3 hover:underline cursor-pointer"
             >
-              <img width={32} src="/images/uk.png" alt="UK Flag" />
+              <img width={32} src="/images/Flag-of-Tunisia.svg" alt="UK Flag" />
               Ship to
             </li>
             <ClientOnly>
