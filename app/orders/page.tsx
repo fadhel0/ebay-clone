@@ -85,7 +85,7 @@ export default function Orders() {
                   </div>
 
                   <div className="pt-2">
-                    <span className="font-bold mr-2">Total:</span>£
+                    <span className="font-bold mr-2">Total:</span>$
                     {order?.total / 100}
                   </div>
 
