@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import CarouselComp from './components/CarouselComp';
-import Product from './components/Product';
-import UseIsLoading from './hooks/useIsLoading';
-import MainLayout from './layouts/MainLayout';
+import { useEffect, useState } from "react";
+import CarouselComp from "./components/CarouselComp";
+import Product from "./components/Product";
+import UseIsLoading from "./hooks/useIsLoading";
+import MainLayout from "./layouts/MainLayout";
 
 // Define the Product type
 type ProductType = {
@@ -15,13 +15,17 @@ type ProductType = {
   price: number;
 };
 
+export const dynamic = "force-dynamic";
+export const dynamicParams = true;
+export const revalidate = 0;
+
 export default function Home() {
   const [products, setProducts] = useState<ProductType[]>([]); // Specify the type here
 
   const getProducts = async () => {
     UseIsLoading(true);
 
-    const response = await fetch('/api/products');
+    const response = await fetch("/api/products");
     const prods = await response.json();
 
     setProducts([]);
@@ -32,6 +36,7 @@ export default function Home() {
   useEffect(() => {
     getProducts();
   }, []);
+
   return (
     <MainLayout>
       <CarouselComp />
